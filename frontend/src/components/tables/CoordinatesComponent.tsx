@@ -4,14 +4,14 @@ import TableState from "../../storage/states/TableState";
 import FilterOption from "../../dtos/FilterOption";
 import OperationType from "../../dtos/OperationType";
 import {
-    COPY_STATE,
+    RELOAD_COORDINATES,
     SET_CREATE_COORDINATES, SET_NOTIFICATIONS,
     SET_UPDATE_COORDINATES,
 } from "../../consts/StateConsts";
 import CoordinatesDTO from "../../dtos/CoordinatesDTO";
 import CoordinatesService from "../../services/CoordinatesService";
 import styles from "../../styles/CoordinatesComponent.module.css"
-import {selectNotifications} from "../../storage/StateSelectors";
+import {selectNotifications, selectReloadCoordinates} from "../../storage/StateSelectors";
 
 interface SortProps {
     id?: boolean,
@@ -23,11 +23,11 @@ export default function CoordinatesComponent() {
     const dispatcher = useDispatch();
     const [coordinates, setCoordinates] = useState<CoordinatesDTO[]>([]);
     const notifications = useSelector(selectNotifications) ?? [];
+    const reloadCoordinates = useSelector(selectReloadCoordinates);
 
     const [tableState, setTableState] = useState<TableState>({pageSize: 5, currPage: 1, count: 0});
     const [sortState, setSortState] = useState<SortProps>({});
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-    const currState = useSelector(state => state);
 
     const applyFilters = () => {
         const newFilters: FilterOption[] =[];
@@ -43,27 +43,31 @@ export default function CoordinatesComponent() {
         setTableState({...tableState, filters: newFilters});
     }
 
-    const updateCoordinates = async () => {
-        var currFilters: FilterOption[];
-        if (!tableState.filters || tableState.filters.length < 1) {
-            currFilters = [];
-        } else {
-            currFilters = tableState.filters;
-        }
+    const updateCoordinatesCount = async () => {
+        const currFilters = tableState.filters ?? [];
         const newCount: number = await CoordinatesService.getCount(...currFilters);
         if (newCount !== tableState.count) {
+            let nextPage = tableState.currPage;
             if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
-                setTableState({...tableState, currPage: Math.trunc(((newCount - 1) / tableState.pageSize) + 1)});
+                nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
             }
-            setTableState({...tableState, count: newCount});
+            setTableState({ ...tableState, count: newCount, currPage: nextPage });
         }
+    };
+
+    const updateCoordinates = async () => {
+        const currFilters = tableState.filters ?? [];
         const newCoordinates = await CoordinatesService.searchCoordinates(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters);
         setCoordinates(newCoordinates);
     }
 
     useEffect(() => {
+        updateCoordinatesCount();
+    }, [tableState.filters, reloadCoordinates])
+
+    useEffect(() => {
         updateCoordinates();
-    }, [tableState, currState, updateCoordinates]);
+    }, [tableState.currPage, tableState.pageSize, tableState.filters, reloadCoordinates]);
 
     const handleNext = async () => {
         if (tableState) {
@@ -91,7 +95,10 @@ export default function CoordinatesComponent() {
                 <div className={styles.filters}>
                     <div className={styles.field}>
                         <span className={styles.label}>id:</span>
-                        <select className={styles.select} onChange={(e) => {
+                        <select
+                            className={styles.select}
+                            value={sortState.id === undefined ? "" : (sortState.id ? "ASC" : "DESC")}
+                            onChange={(e) => {
                             if (e.target.value === "") {
                                 setSortState({...sortState, id: undefined});
                             } else if (e.target.value === "ASC") {
@@ -107,7 +114,10 @@ export default function CoordinatesComponent() {
                     </div>
                     <div className={styles.field}>
                         <span className={styles.label}>x:</span>
-                        <select className={styles.select} onChange={(e) => {
+                        <select
+                            className={styles.select}
+                            value={sortState.x === undefined ? "" : (sortState.x ? "ASC" : "DESC")}
+                            onChange={(e) => {
                             if (e.target.value === "") {
                                 setSortState({...sortState, x: undefined});
                             } else if (e.target.value === "ASC") {
@@ -123,7 +133,10 @@ export default function CoordinatesComponent() {
                     </div>
                     <div className={styles.field}>
                         <span className={styles.label}>y:</span>
-                        <select className={styles.select} onChange={(e) => {
+                        <select
+                            className={styles.select}
+                            value={sortState.y === undefined ? "" : (sortState.y ? "ASC" : "DESC")}
+                            onChange={(e) => {
                             if (e.target.value === "") {
                                 setSortState({...sortState, y: undefined});
                             } else if (e.target.value === "ASC") {
@@ -139,6 +152,12 @@ export default function CoordinatesComponent() {
                     </div>
                     <button className={styles.applyButton} onClick={applyFilters}>
                         Применить
+                    </button>
+                    <button className={styles.applyButton} onClick={() => {
+                        setTableState({...tableState, filters: []});
+                        setSortState({});
+                        }}>
+                        Сбросить
                     </button>
                 </div>
             )}
@@ -166,7 +185,7 @@ export default function CoordinatesComponent() {
                                         if (number === -1) {
                                             dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, "Ошибка при удалении Coordinates. Попробуйте сначала убрать все зависимости, а потом попробовать снова."]});
                                         } else {
-                                            dispatcher({type: COPY_STATE});
+                                            dispatcher({type: RELOAD_COORDINATES});
                                         }
                                     }
                                 }}>

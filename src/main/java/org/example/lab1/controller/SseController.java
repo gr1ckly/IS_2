@@ -1,5 +1,6 @@
 package org.example.lab1.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.model.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,19 +12,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.management.Notification;
 import java.io.IOException;
 
 @RestController
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
-)
+@Slf4j
 public class SseController {
-    private static final Logger log = LoggerFactory.getLogger(SseController.class);
+    private NotificationService notificationService;
 
     @Autowired
-    private NotificationService notificationService;
+    public SseController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @GetMapping(path="/get-sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter getSseEmitter() {

@@ -7,6 +7,7 @@
     background-color: #000000;
     border: 2px solid #ffffff;
     color: #ffffff;
+    width: 90%;
     opacity: 0;
     animation: fadeIn 0.4s ease-in-out forwards;
 }

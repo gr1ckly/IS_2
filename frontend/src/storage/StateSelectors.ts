@@ -30,3 +30,15 @@ export const selectCreateCoordinates = (state: AppState): boolean | undefined =>
 export const selectNotifications = (state: AppState): string[] => {
     return state.notifications;
 }
+
+export const selectReloadPersons = (state: AppState): {} => {
+    return state.reloadPersons;
+}
+
+export const selectReloadLocations = (state: AppState): {} => {
+    return state.reloadLocations;
+}
+
+export const selectReloadCoordinates = (state: AppState): {} => {
+    return state.reloadCoordinates;
+}

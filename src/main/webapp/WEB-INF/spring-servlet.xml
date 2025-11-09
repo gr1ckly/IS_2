@@ -24,4 +24,41 @@
         <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
     </bean>
 
+    <bean id="corsConfigurationSource"
+          class="org.springframework.web.cors.UrlBasedCorsConfigurationSource">
+        <property name="corsConfigurations">
+            <map>
+                <entry key="/**">
+                    <bean class="org.springframework.web.cors.CorsConfiguration">
+                        <property name="allowedOrigins">
+                            <list>
+                                <value>http://localhost:3000</value>
+                            </list>
+                        </property>
+                        <property name="allowedMethods">
+                            <list>
+                                <value>GET</value>
+                                <value>POST</value>
+                                <value>PUT</value>
+                                <value>DELETE</value>
+                                <value>PATCH</value>
+                                <value>OPTIONS</value>
+                            </list>
+                        </property>
+                        <property name="allowedHeaders">
+                            <list>
+                                <value>*</value>
+                            </list>
+                        </property>
+                        <property name="allowCredentials" value="true"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="corsFilter" class="org.springframework.web.filter.CorsFilter">
+        <constructor-arg ref="corsConfigurationSource"/>
+    </bean>
+
 </beans>

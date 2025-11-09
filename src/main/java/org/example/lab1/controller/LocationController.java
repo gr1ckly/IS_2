@@ -14,15 +14,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/location")
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
-)
 public class LocationController {
 
-    @Autowired
     private StorageService storageService;
+
+    @Autowired
+    public LocationController(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @PostMapping("/get_count")
     public ResponseEntity<Integer> getCountLocations(@RequestBody(required = false) FilterOption... options) {

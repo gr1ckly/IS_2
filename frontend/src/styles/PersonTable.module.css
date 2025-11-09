@@ -1,5 +1,19 @@
+.tableWrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+}
+
 .table {
     width: 100%;
+    max-width: 100%;
+    min-width: 1100px;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-top: 1rem;
     background-color: #000000;
@@ -7,7 +21,7 @@
 }
 
 .thead {
-    background-color: #111111;
+    background-color: #000000;
 }
 
 .th {
@@ -15,12 +29,18 @@
     padding: 0.5rem;
     text-align: left;
     color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .td {
     border-bottom: 2px solid #ffffff;
     padding: 0.5rem;
     color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .deleteButton {
@@ -75,4 +95,16 @@
     margin: 0 0.5rem;
     font-weight: bold;
     color: #ffffff;
+}
+
+.table tr > .th:nth-child(9) {
+    min-width: 130px;
+    width: clamp(130px, 16vw, 220px);
+    max-width: 220px;
+}
+
+.table tr > .th:nth-child(12),
+.table tr > .th:nth-child(13) {
+    min-width: 130px;
+    overflow: hidden;
 }

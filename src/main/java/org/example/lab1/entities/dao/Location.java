@@ -7,14 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.lab1.entities.dto.LocationDTO;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "location")
 @Getter
 @Setter
-@Cacheable(false)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Location {

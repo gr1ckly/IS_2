@@ -10,6 +10,9 @@ interface AppState {
     createLocation: boolean;
     createPerson: boolean;
     notifications: string[];
+    reloadPersons: {};
+    reloadLocations: {};
+    reloadCoordinates: {};
 }
 
 export default AppState;

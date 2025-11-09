@@ -56,11 +56,11 @@ export default function EyesColor() {
                 ))}
             </select>
 
-            {message && <label className={styles.message}>{message}</label>}
-
             <button className={styles.button} onClick={handleCount}>
                 Посчитать
             </button>
+
+            {message && <label className={styles.message}>{message}</label>}
         </div>
     );
 }

@@ -19,9 +19,17 @@ public class NotificationService {
         this.emitters = emitters;
     }
 
-    public void sendMessage(String message) throws Exception {
+    public void sendMessage(String message) {
         for (SseEmitter currEmitter : this.emitters) {
-            currEmitter.send(SseEmitter.event().name("update").data(message));
+            try {
+                currEmitter.send(SseEmitter.event().name(message).data(message));
+            } catch (Exception e) {
+                try {
+                    currEmitter.completeWithError(e);
+                } catch (Exception ignored) {
+                }
+                unregisterSseEmitter(currEmitter);
+            }
         }
     }
 

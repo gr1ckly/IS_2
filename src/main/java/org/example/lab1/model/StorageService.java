@@ -15,6 +15,7 @@ import org.example.lab1.model.interfaces.PersonStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.management.Notification;
 import java.util.List;
 
 @Service
@@ -24,17 +25,27 @@ import java.util.List;
 @Setter
 public class StorageService {
 
-    @Autowired
     private PersonStorage personStorage;
 
-    @Autowired
     private LocationStorage locationStorage;
 
-    @Autowired
     private CoordinatesStorage coordinatesStorage;
 
-    @Autowired
     private NotificationService notificationService;
+
+    private static final String personMessage = "person";
+
+    private static final String locationMessage = "location";
+
+    private static final String coordinatesMessage = "coordinates";
+
+    @Autowired
+    public StorageService(NotificationService notificationService, PersonStorage personStorage, CoordinatesStorage coordinatesStorage, LocationStorage locationStorage) {
+        this.personStorage = personStorage;
+        this.locationStorage = locationStorage;
+        this.coordinatesStorage = coordinatesStorage;
+        this.notificationService = notificationService;
+    }
 
     public long createPerson(Person newPerson, Long locationId, long coordinatesId) throws Exception {
         if (locationId != null && locationId > 0) {
@@ -49,8 +60,9 @@ public class StorageService {
             throw new BadDataException("Coordinates not found");
         }
         newPerson.setCoordinates(currCoords);
-        notificationService.sendMessage("update");
-        return this.personStorage.createPerson(newPerson);
+        long createdId = this.personStorage.createPerson(newPerson);
+        notificationService.sendMessage(StorageService.personMessage);
+        return createdId;
     }
 
     public Person getPersonById(long id) throws Exception {
@@ -78,18 +90,25 @@ public class StorageService {
             throw new BadDataException("Coordinates not found");
         }
         newPerson.setCoordinates(currCoords);
-        notificationService.sendMessage("update");
-        return this.personStorage.updatePerson(id, newPerson);
+        int updated = this.personStorage.updatePerson(id, newPerson);
+        if (updated > 0) {
+            notificationService.sendMessage(StorageService.personMessage);
+        }
+        return updated;
     }
 
     public int deletePersonsByFilters(FilterOption... options) throws Exception {
-        notificationService.sendMessage("update");
-        return this.personStorage.deletePersonByFilter(options);
+        int deleted = this.personStorage.deletePersonByFilter(options);
+        if (deleted > 0) {
+            notificationService.sendMessage(StorageService.personMessage);
+        }
+        return deleted;
     }
 
     public long createLocation(Location newLocation) throws Exception {
-        notificationService.sendMessage("update");
-        return this.locationStorage.createLocation(newLocation);
+        long createdId = this.locationStorage.createLocation(newLocation);
+        notificationService.sendMessage(StorageService.locationMessage);
+        return createdId;
     }
 
     public Location getLocationById(long id) throws Exception {
@@ -105,18 +124,25 @@ public class StorageService {
     }
 
     public int updateLocation(long id, Location newLocation) throws Exception {
-        notificationService.sendMessage("update");
-        return this.locationStorage.updateLocation(id, newLocation);
+        int updated = this.locationStorage.updateLocation(id, newLocation);
+        if (updated > 0) {
+            notificationService.sendMessage(StorageService.locationMessage);
+        }
+        return updated;
     }
 
     public int deleteLocation(long id) throws Exception {
-        notificationService.sendMessage("update");
-        return this.locationStorage.deleteLocation(id);
+        int deleted = this.locationStorage.deleteLocation(id);
+        if (deleted > 0) {
+            notificationService.sendMessage(StorageService.locationMessage);
+        }
+        return deleted;
     }
 
     public long createCoordinates(Coordinates newCoordinates) throws Exception {
-        notificationService.sendMessage("update");
-        return this.coordinatesStorage.createCoordinates(newCoordinates);
+        long createdId = this.coordinatesStorage.createCoordinates(newCoordinates);
+        notificationService.sendMessage(StorageService.coordinatesMessage);
+        return createdId;
     }
 
     public Coordinates getCoordinatesById(long id) throws Exception {
@@ -132,13 +158,19 @@ public class StorageService {
     }
 
     public int updateCoordinates(long id, Coordinates newCoordinates) throws Exception {
-        notificationService.sendMessage("update");
-        return this.coordinatesStorage.updateCoordinates(id, newCoordinates);
+        int updated = this.coordinatesStorage.updateCoordinates(id, newCoordinates);
+        if (updated > 0) {
+            notificationService.sendMessage(StorageService.coordinatesMessage);
+        }
+        return updated;
     }
 
     public int deleteCoordinates(long id) throws Exception {
-        notificationService.sendMessage("update");
-        return this.coordinatesStorage.deleteCoordinates(id);
+        int deleted = this.coordinatesStorage.deleteCoordinates(id);
+        if (deleted > 0) {
+            notificationService.sendMessage(StorageService.coordinatesMessage);
+        }
+        return deleted;
     }
 }
 

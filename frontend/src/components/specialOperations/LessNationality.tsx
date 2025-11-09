@@ -18,7 +18,7 @@ export default function LessNationality() {
         const currFilter: FilterOption = {fieldName: "nationality", operationType: OperationType.LESS, value: Country[selectedNationality].toString()};
         console.log(currFilter.value);
         const selectNumber: number = await PersonService.getCount(currFilter);
-        if (!selectNumber || selectNumber === -1) {
+        if (selectNumber === -1) {
             setMessage(`Ошибка при подсчете объектов с nationality < ${selectedNationality.toString()} `);
         } else {
             setMessage(`Объектов с nationality < ${selectedNationality.toString()} : ${selectNumber}`);

@@ -53,11 +53,11 @@ export default function DeleteNationality() {
                 ))}
             </select>
 
-            {message && <label className={styles.message}>{message}</label>}
-
             <button className={styles.button} onClick={handleDelete}>
                 Денацификация
             </button>
+
+            {message && <label className={styles.message}>{message}</label>}
         </div>
     );
 }

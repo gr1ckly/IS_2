@@ -1,12 +1,11 @@
 package org.example.lab1.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.Person;
 import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.PersonDTO;
 import org.example.lab1.exceptions.BadDataException;
 import org.example.lab1.model.StorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +15,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/persons")
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
-)
+@Slf4j
 public class PersonController {
-    private static final Logger log = LoggerFactory.getLogger(PersonController.class);
+    private StorageService storageService;
 
     @Autowired
-    private StorageService storageService;
+    public PersonController(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @PostMapping("/get_count")
     public ResponseEntity<Integer> getCountPersons(@RequestBody(required = false) FilterOption... options) {

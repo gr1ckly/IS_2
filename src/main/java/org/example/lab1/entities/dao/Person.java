@@ -16,7 +16,6 @@ import java.util.Date;
 @Table(name = "person")
 @Getter
 @Setter
-@Cacheable(false)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Person {

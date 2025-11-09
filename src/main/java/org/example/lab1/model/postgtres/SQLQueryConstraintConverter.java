@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -88,7 +89,10 @@ public class SQLQueryConstraintConverter<T> implements QueryConstraintConverter<
         }
         try {
             return LocalDateTime.parse(value);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {}
+        try {
+            return LocalDate.parse(value).atStartOfDay();
+        } catch (Exception e) {}
         return value;
     }
 

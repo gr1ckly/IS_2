@@ -1,14 +1,14 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    background-color: #000000;
-    padding: 20px 24px;
+    gap: 12px;
+    padding: 16px;
     border-radius: 12px;
+    background-color: #000000;
     border: 2px solid #ffffff;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
-    width: 340px;
     color: #ffffff;
+    width: 90%;
+    min-width: 0;
     opacity: 0;
     animation: fadeIn 0.4s ease-in-out forwards;
 }
@@ -39,12 +39,14 @@
     font-size: 14px;
     background-color: #000000;
     color: #ffffff;
+    width: 90%;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, transform 0.1s ease;
 }
 
 .input:focus {
     border-color: #ccff00;
-    transform: scale(1.02);
+    transform: scale(1.002);
 }
 
 .message {
@@ -77,4 +79,10 @@
     margin-top: 10px;
     border-top: 2px solid #ffffff;
     padding-top: 10px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
 }

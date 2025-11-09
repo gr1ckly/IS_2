@@ -39,7 +39,7 @@ export default function PersonComponent() {
 
     const applyFilters = () => {
         const newFilters: FilterOption[] =[];
-        if (filterState.name) {
+        if (filterState.name && filterState.name !== "") {
             newFilters.push({fieldName: "name", operationType: OperationType.EQUAL, value: filterState.name});
         }
         if (filterState.eyeColor) {
@@ -53,9 +53,6 @@ export default function PersonComponent() {
         }
         if (sortState.id !== undefined) {
             newFilters.push({fieldName: "id", operationType: sortState.id ? OperationType.SORTED : OperationType.SORTED_DESC});
-        }
-        if (sortState.name !== undefined) {
-            newFilters.push({fieldName: "name", operationType: sortState.name ? OperationType.SORTED : OperationType.SORTED_DESC});
         }
         if (sortState.coordinatesId !== undefined) {
             newFilters.push({fieldName: "coordinates_id", operationType: sortState.coordinatesId ? OperationType.SORTED : OperationType.SORTED_DESC});
@@ -107,6 +104,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.id === undefined ? "" : (sortState.id ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, id: undefined });
@@ -128,10 +126,11 @@ export default function PersonComponent() {
                         <input
                             className={styles.input}
                             type="text"
+                            value={filterState.name ?? ""}
                             onChange={(e) => {
                                 setFilterState({
                                     ...filterState,
-                                    name: e.target.value === "" || /^-?\d+(\.\d+)?$/.test(e.target.value.trim()) ? undefined : e.target.value,
+                                    name: e.target.value === "" || /^-?\d+(\.\d+)?$/.test(e.target.value.trim()) ? "" : e.target.value,
                                 });
                             }}
                         />
@@ -142,6 +141,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.coordinatesId === undefined ? "" : (sortState.coordinatesId ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, coordinatesId: undefined });
@@ -163,6 +163,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.creationDate === undefined ? "" : (sortState.creationDate ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, creationDate: undefined });
@@ -184,6 +185,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.eyeColor === undefined ? "" : (sortState.eyeColor ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, eyeColor: undefined });
@@ -225,6 +227,7 @@ export default function PersonComponent() {
                         <label className={styles.label}>{"location_id"}</label>
                         <select
                             className={styles.select}
+                            value={sortState.locationId === undefined ? "" : (sortState.locationId ? "ASC" : "DESC")}
                             id="sort"
                             onChange={(e) => {
                                 if (e.target.value === "") {
@@ -247,6 +250,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.height === undefined ? "" : (sortState.height   ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, height: undefined });
@@ -268,6 +272,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.birthday === undefined ? "" : (sortState.birthday ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, birthday: undefined });
@@ -289,6 +294,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.weight === undefined ? "" : (sortState.weight ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, weight: undefined });
@@ -310,6 +316,7 @@ export default function PersonComponent() {
                         <select
                             className={styles.select}
                             id="sort"
+                            value={sortState.nationality === undefined ? "" : (sortState.nationality ? "ASC" : "DESC")}
                             onChange={(e) => {
                                 if (e.target.value === "") {
                                     setSortState({ ...sortState, nationality: undefined });
@@ -328,6 +335,14 @@ export default function PersonComponent() {
 
                     <button className={styles.applyButton} onClick={applyFilters}>
                         Применить
+                    </button>
+
+                    <button className={styles.applyButton} onClick={() => {
+                        setTableState({...tableState, filters: []});
+                        setSortState({});
+                        setFilterState({});
+                    }}>
+                        Сбросить
                     </button>
                 </div>
             )}

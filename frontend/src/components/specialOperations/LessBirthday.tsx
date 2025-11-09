@@ -16,21 +16,18 @@ export default function LessBirthday() {
             setMessage("Пожалуйста, введите корректный birthday");
             return
         }
-        else console.log("Выводим всех с birthday <", birthday);
-        const currFilter: FilterOption = {fieldName: "birthday", operationType: OperationType.LESS, value: birthday};
+        const currFilter: FilterOption = {fieldName: "birthday", operationType: OperationType.GREATER, value: birthday};
         const personNumber: number = await PersonService.getCount(currFilter);
-        if (!personNumber || personNumber === -1) {
+        if (personNumber === -1) {
             setMessage(`Ошибка при выводе объектов с birthday < ${birthday} `);
             setBirthday("");
             return
         } else if (personNumber === 0) {
-            setMessage(`Пока объектов Person не было создано`);
+            setMessage(`Нету объектов Person, родившихся позже ${birthday}`);
             setBirthday("");
             return
         }
-        if (tableState === undefined) {
-            setTableState({pageSize: 10, count:personNumber, currPage:1, filters: [currFilter]});
-        }
+        setTableState({pageSize: 10, count:personNumber, currPage:1, filters: [currFilter]});
     }
 
     return (
@@ -40,17 +37,18 @@ export default function LessBirthday() {
             <input
                 type="date"
                 className={styles.input}
+                min="0001-01-01"
+                max="9999-12-31"
                 value={birthday}
                 onChange={(e) => {
-                    console.log(e.target.value);
-                    setBirthday(e.target.value ? new Date(e.target.value).toISOString().split("T")[0] : "")}}
+                    setBirthday(e.target.value || "")}}
             />
-
-            {message !== "" && <label className={styles.message}>{message}</label>}
 
             <button className={styles.button} onClick={handleGet}>
                 Показать Person
             </button>
+
+            {message !== "" && <label className={styles.message}>{message}</label>}
 
             {tableState && (
                 <div className={styles.tableWrapper}>

@@ -1,9 +1,10 @@
-import {useDispatch} from "react-redux";
-import {CLEAR_ALL} from "../../consts/StateConsts";
+import {useDispatch, useSelector} from "react-redux";
+import {CLEAR_ALL, RELOAD_COORDINATES, SET_NOTIFICATIONS} from "../../consts/StateConsts";
 import CoordinatesDTO from "../../dtos/CoordinatesDTO";
 import {useState} from "react";
 import CoordinatesService from "../../services/CoordinatesService";
 import styles from "../../styles/CoordinatesForm.module.css"
+import {selectNotifications} from "../../storage/StateSelectors";
 
 interface Props {
     coordinates?: CoordinatesDTO;
@@ -11,6 +12,7 @@ interface Props {
 
 export default function CoordinatesForm(props: Readonly<Props>) {
     const dispatcher = useDispatch();
+    const notifications = useSelector(selectNotifications);
     const [newCoordinates, setCoordinates] = useState(
         props.coordinates ??
         {
@@ -21,6 +23,7 @@ export default function CoordinatesForm(props: Readonly<Props>) {
     const [message, setMessage] = useState("");
 
     const handleCreate = async () => {
+        if (message) return;
         if (newCoordinates.x <= -459) {
             setMessage("Некорректное значение поля x");
             return
@@ -34,10 +37,13 @@ export default function CoordinatesForm(props: Readonly<Props>) {
             setMessage("Ошибка при создании Coordinates");
             return
         }
-        setMessage(`Создан Coordinates с id = ${number}`)
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Создан Coordinates с id = ${number}`]});
+        dispatcher({type: RELOAD_COORDINATES, payload: {}});
+        setMessage("");
     }
 
     const handleUpdate = async () => {
+        if (message) return;
         if (newCoordinates.x <= -459) {
             setMessage("Некорректное значение поля x");
             return
@@ -51,7 +57,9 @@ export default function CoordinatesForm(props: Readonly<Props>) {
             setMessage(`Ошибка при обновлении Coordinates с id = ${newCoordinates.id}`);
             return
         }
-        setMessage(`Обновлен Coordinates с id = ${newCoordinates.id}`)
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Обновлен Coordinates с id = ${newCoordinates.id}`]});
+        dispatcher({type: RELOAD_COORDINATES, payload: {}});
+        setMessage("");
     }
 
     return (
@@ -77,12 +85,18 @@ export default function CoordinatesForm(props: Readonly<Props>) {
                     type="number"
                     step="any"
                     value={newCoordinates.x}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        if (!Number.isFinite(v)) {
+                            setMessage("Некорректное значение X");
+                        } else {
+                            setMessage("");
+                        }
                         setCoordinates({
                             ...newCoordinates,
-                            x: Number.parseFloat(e.target.value),
+                            x: v,
                         })
-                    }
+                    }}
                 />
             </div>
 
@@ -93,12 +107,18 @@ export default function CoordinatesForm(props: Readonly<Props>) {
                     type="number"
                     step="1"
                     value={newCoordinates.y}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        if (!Number.isSafeInteger(v)) {
+                            setMessage("Некорректное значение Y");
+                        } else {
+                            setMessage("");
+                        }
                         setCoordinates({
                             ...newCoordinates,
-                            y: Number.parseInt(e.target.value),
+                            y: Number.isFinite(v) ? Math.trunc(v) : (v as any),
                         })
-                    }
+                    }}
                 />
             </div>
 

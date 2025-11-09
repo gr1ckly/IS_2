@@ -5,9 +5,10 @@
     background: #000000;
     padding: 20px;
     border-radius: 12px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
-    width: 360px;
+    box-shadow: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     color: #ffffff;
     opacity: 0;
     animation: fadeIn 0.4s ease-in-out forwards;
@@ -51,6 +52,7 @@
 .field {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .label {
@@ -67,6 +69,8 @@
     outline: none;
     background-color: #000000;
     color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, transform 0.1s ease;
 }
 
@@ -99,4 +103,22 @@
     color: #ff3b3b;
     font-size: 13px;
     margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 16px;
+        gap: 10px;
+    }
+}
+
+.input[type="number"] {
+    appearance: auto;
+    -moz-appearance: number-input;
+}
+
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto;
+    margin: 0;
 }

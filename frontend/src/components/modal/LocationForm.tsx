@@ -1,9 +1,10 @@
-import {useDispatch} from "react-redux";
-import {CLEAR_ALL} from "../../consts/StateConsts";
+import {useDispatch, useSelector} from "react-redux";
+import {CLEAR_ALL, RELOAD_COORDINATES, RELOAD_LOCATIONS, SET_NOTIFICATIONS} from "../../consts/StateConsts";
 import LocationDTO from "../../dtos/LocationDTO";
 import {useState} from "react";
 import LocationService from "../../services/LocationService";
 import styles from "../../styles/LocationForm.module.css"
+import {selectNotifications} from "../../storage/StateSelectors";
 
 interface Props {
     location?: LocationDTO;
@@ -11,6 +12,7 @@ interface Props {
 
 export default function LocationForm(props: Readonly<Props>) {
     const dispatcher = useDispatch();
+    const notifications = useSelector(selectNotifications);
     const [newLocation, setLocation] = useState(
         props.location ??
         {
@@ -23,6 +25,7 @@ export default function LocationForm(props: Readonly<Props>) {
     const [message, setMessage] = useState("");
 
     const handleCreate = async () => {
+        if (message) return;
         if (newLocation.name.length > 871) {
             setMessage("Некорректное значение поля name");
             return
@@ -32,10 +35,12 @@ export default function LocationForm(props: Readonly<Props>) {
             setMessage("Ошибка при создании Location");
             return
         }
-        setMessage(`Создан Location с id = ${number}`)
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Создан Location с id = ${number}`]});
+        setMessage("");
     }
 
     const handleUpdate = async () => {
+        if (message) return;
         if (newLocation.name.length > 871) {
             setMessage("Некорректное значение поля name");
             return
@@ -45,7 +50,8 @@ export default function LocationForm(props: Readonly<Props>) {
             setMessage(`Ошибка при обновлении Location с id = ${newLocation.id}`);
             return
         }
-        setMessage(`Обновлен Location с id = ${newLocation.id}`)
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Обновлен Location с id = ${newLocation.id}`]});
+        setMessage("");
     }
 
     return (
@@ -71,12 +77,18 @@ export default function LocationForm(props: Readonly<Props>) {
                     type="number"
                     step="any"
                     value={newLocation.x}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        if (!Number.isFinite(v)) {
+                            setMessage("Некорректное значение X");
+                        } else {
+                            setMessage("");
+                        }
                         setLocation({
                             ...newLocation,
-                            x: Number.parseFloat(e.target.value),
+                            x: v,
                         })
-                    }
+                    }}
                 />
             </div>
 
@@ -87,12 +99,18 @@ export default function LocationForm(props: Readonly<Props>) {
                     type="number"
                     step="any"
                     value={newLocation.y}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        if (!Number.isFinite(v)) {
+                            setMessage("Некорректное значение Y");
+                        } else {
+                            setMessage("");
+                        }
                         setLocation({
                             ...newLocation,
-                            y: Number.parseFloat(e.target.value),
+                            y: v,
                         })
-                    }
+                    }}
                 />
             </div>
 

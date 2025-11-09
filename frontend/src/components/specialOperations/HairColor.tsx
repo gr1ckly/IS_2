@@ -49,8 +49,8 @@ export default function HairColor() {
 
     return (
         <div className={styles.container}>
-            <span className={styles.label}>Посчитать количество людей с определенным цветом глаз в пределах заданной локации</span>
-            <span className={styles.label}>Выберите цвет глаз:</span>
+            <span className={styles.label}>Посчитать количество людей с определенным цветом волос в пределах заданной локации</span>
+            <span className={styles.label}>Выберите цвет волос:</span>
             <select
                 id="color"
                 className={styles.select}
@@ -76,7 +76,7 @@ export default function HairColor() {
                     onChange={handleChangeLocationId}
                 />
                 {locationIdMessage !== "" && (
-                    <label className={styles.error}>{locationIdMessage}</label>
+                    <span className={styles.error}>{locationIdMessage}</span>
                 )}
             </div>
 

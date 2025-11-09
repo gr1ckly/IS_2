@@ -6,20 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.lab1.entities.dto.CoordinatesDTO;
-import org.example.lab1.model.postgtres.HibernateFactory;
-import org.hibernate.Session;
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "coordinates")
 @Getter
 @Setter
-@Cacheable(false)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Coordinates {

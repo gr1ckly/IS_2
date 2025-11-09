@@ -5,8 +5,14 @@ import TableState from "../../storage/states/TableState";
 import PersonDTO from "../../dtos/PersonDTO";
 import PersonService from "../../services/PersonService";
 import OperationType from "../../dtos/OperationType";
-import {COPY_STATE, SET_NOTIFICATIONS, SET_UPDATE_PERSON} from "../../consts/StateConsts";
-import {selectNotifications} from "../../storage/StateSelectors";
+import {
+    COPY_STATE,
+    RELOAD_LOCATIONS,
+    RELOAD_PERSONS,
+    SET_NOTIFICATIONS,
+    SET_UPDATE_PERSON
+} from "../../consts/StateConsts";
+import {selectNotifications, selectReloadPersons} from "../../storage/StateSelectors";
 
 interface Props {
     tableState: TableState;
@@ -15,59 +21,61 @@ interface Props {
 
 export default function PersonTable(props: Readonly<Props>) {
     const dispatcher = useDispatch();
-    const currState = useSelector(state => state);
+    const reloadPersons = useSelector(selectReloadPersons);
     const [persons, setPersons] = useState<PersonDTO[]>([]);
     const [localTableState, setLocalTableState] = useState({ ...props.tableState });
     const stateNotifications = useSelector(selectNotifications);
 
-    useEffect(() => {
-        setLocalTableState({ ...props.tableState });
-    }, [props.tableState]);
-
-    const updatePersons = async () => {
+    const updatePersonsCount = async () => {
         const currFilters = localTableState.filters ?? [];
         const newCount = await PersonService.getCount(...currFilters);
 
         let adjustedState = { ...localTableState };
         if (newCount !== localTableState.count) {
             if (newCount <= (localTableState.currPage - 1) * localTableState.pageSize) {
-                adjustedState.currPage = Math.trunc(((newCount - 1) / localTableState.pageSize) + 1);
+                adjustedState.currPage = Math.max(Math.trunc(((newCount - 1) / localTableState.pageSize) + 1), 1);
             }
             adjustedState.count = newCount;
-            updateLocalState(adjustedState);
+            setLocalTableState(adjustedState);
+            props.onChangeTableState(adjustedState);
         }
+    };
 
+    const updatePersons = async () => {
+        const currFilters = localTableState.filters ?? [];
+        let adjustedState = { ...localTableState };
         const newPersons = await PersonService.searchPersons(
             Math.trunc((adjustedState.currPage - 1) * adjustedState.pageSize),
             Math.trunc(adjustedState.pageSize),
             ...currFilters
         );
         setPersons(newPersons);
-    };
+    }
+
+    useEffect(() => {
+        updatePersonsCount()
+    }, [localTableState.filters, reloadPersons])
 
     useEffect(() => {
         updatePersons();
-    }, [localTableState, currState, updatePersons]);
-
-    const updateLocalState = (newState: TableState) => {
-        setLocalTableState(newState);
-        props.onChangeTableState(newState);
-    };
+    }, [localTableState.currPage, localTableState.pageSize, localTableState.filters, reloadPersons]);
 
     const handleNext = () => {
         if (localTableState) {
-            updateLocalState({ ...localTableState, currPage: localTableState.currPage + 1 });
+            setLocalTableState({ ...localTableState, currPage: localTableState.currPage + 1 });
+            props.onChangeTableState({ ...localTableState, currPage: localTableState.currPage + 1 });
         }
     };
 
     const handlePrev = () => {
         if (localTableState && localTableState.currPage > 1) {
-            updateLocalState({ ...localTableState, currPage: localTableState.currPage - 1 });
+            setLocalTableState({ ...localTableState, currPage: localTableState.currPage - 1 });
+            props.onChangeTableState({ ...localTableState, currPage: localTableState.currPage - 1 });
         }
     };
 
     return (
-        <div>
+        <div className={styles.tableWrapper}>
         <table className={styles.table}>
             <thead className={styles.thead}>
             <tr className={styles.tr}>
@@ -100,7 +108,7 @@ export default function PersonTable(props: Readonly<Props>) {
                     <th className={styles.th}>{person.locationId ?? ""}</th>
                     <th className={styles.th}>{person.height}</th>
                     <th className={styles.th}>
-                        {person.birthday ? new Date(person.birthday).toLocaleDateString() : ""}
+                        {person.birthday ? (person.birthday.includes("T") ? person.birthday.split("T")[0] : person.birthday) : ""}
                     </th>
                     <th className={styles.th}>{person.weight}</th>
                     <th className={styles.th}>{person.nationality.toString()}</th>
@@ -116,7 +124,7 @@ export default function PersonTable(props: Readonly<Props>) {
                                 if (number === -1) {
                                     dispatcher({type: SET_NOTIFICATIONS, payload: [...stateNotifications, "Ошибка при удалении Person"]});
                                 } else {
-                                    dispatcher({type: COPY_STATE});
+                                    dispatcher({type: RELOAD_PERSONS, payload: {}});
                                 }
                             }}
                         >

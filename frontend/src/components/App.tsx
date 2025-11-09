@@ -6,7 +6,7 @@ import LocationComponent from "./tables/LocationComponent";
 import CoordinatesComponent from "./tables/CoordinatesComponent";
 import Popup from "./modal/Popup";
 import {useDispatch} from "react-redux";
-import {COPY_STATE} from "../consts/StateConsts";
+import {COPY_STATE, RELOAD_COORDINATES, RELOAD_LOCATIONS, RELOAD_PERSONS} from "../consts/StateConsts";
 import {BASE_URL, SSE_PATH} from "../consts/HttpConsts";
 import styles from "../styles/App.module.css";
 import Notification from "./modal/Notification";
@@ -19,13 +19,19 @@ function App() {
 
         eventSource.onopen = () => console.log("SSE подключено");
 
-        eventSource.addEventListener("update", (e) => {
-            console.log("Новое событие SSE:", e.data);
-            dispatcher({ type: COPY_STATE });
+        eventSource.addEventListener("person", (e) => {
+            console.log("SSE обновление person:", e.data);
+            dispatcher({ type: RELOAD_PERSONS, payload: {} });
         });
 
-        eventSource.addEventListener("ping", () => {
-            console.log("пинг SSE");
+        eventSource.addEventListener("location", (e) => {
+            console.log("SSE обновление location:", e.data);
+            dispatcher({ type: RELOAD_LOCATIONS, payload: {} });
+        });
+
+        eventSource.addEventListener("coordinates", (e) => {
+            console.log("SSE обновление coordinates:", e.data);
+            dispatcher({ type: RELOAD_COORDINATES, payload: {} });
         });
 
         eventSource.onerror = (err) => {
@@ -47,10 +53,10 @@ function App() {
                     <PersonComponent />
                 </div>
                 <div className={styles.middleRow}>
-                    <div className={styles.left}>
+                    <div className={styles.location}>
                         <LocationComponent />
                     </div>
-                    <div className={styles.right}>
+                    <div className={styles.coordinates}>
                         <CoordinatesComponent />
                     </div>
                 </div>

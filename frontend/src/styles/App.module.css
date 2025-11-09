@@ -1,3 +1,7 @@
+.App {
+    width: 100%;
+}
+
 .layout {
     display: flex;
     flex-direction: column;
@@ -25,15 +29,44 @@
     max-width: 900px;
 }
 
+@media (max-width: 960px) {
+    .middleRow {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 24px;
+    }
+    .location,
+    .coordinates {
+        width: 100%;
+    }
+    .person,
+    .special {
+        padding: 0 12px;
+        width: 100%;
+    }
+}
+
 .location,
 .coordinates {
     flex: 1;
     display: flex;
     justify-content: center;
+    min-width: 0;
 }
 
 .special {
     display: flex;
     justify-content: center;
     width: 100%;
+}
+
+@media (max-width: 600px) {
+    .layout {
+        padding: 16px 0;
+        gap: 24px;
+    }
+    .middleRow {
+        gap: 16px;
+        max-width: 100%;
+    }
 }

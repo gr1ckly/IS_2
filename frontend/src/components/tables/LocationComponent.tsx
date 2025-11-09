@@ -2,12 +2,18 @@ import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 import FilterOption from "../../dtos/FilterOption";
 import OperationType from "../../dtos/OperationType";
-import {COPY_STATE, SET_CREATE_LOCATION, SET_NOTIFICATIONS, SET_UPDATE_LOCATION} from "../../consts/StateConsts";
+import {
+    COPY_STATE,
+    RELOAD_LOCATIONS,
+    SET_CREATE_LOCATION,
+    SET_NOTIFICATIONS,
+    SET_UPDATE_LOCATION
+} from "../../consts/StateConsts";
 import LocationDTO from "../../dtos/LocationDTO";
 import TableState from "../../storage/states/TableState";
 import LocationService from "../../services/LocationService";
 import styles from "../../styles/LocationComponent.module.css";
-import {selectNotifications} from "../../storage/StateSelectors";
+import {selectNotifications, selectReloadCoordinates, selectReloadLocations} from "../../storage/StateSelectors";
 
 
 interface FilterProps {
@@ -25,16 +31,16 @@ export default function LocationComponent () {
     const dispatcher = useDispatch();
     const [locations, setLocations] = useState<LocationDTO[]>([]);
     const notifications = useSelector(selectNotifications) ?? [];
+    const reloadLocations = useSelector(selectReloadLocations);
 
     const [tableState, setTableState] = useState<TableState>({pageSize: 5, currPage: 1, count: 0});
     const [filterState, setFilterState] = useState<FilterProps>({});
     const [sortState, setSortState] = useState<SortProps>({});
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-    const currState = useSelector(state => state);
 
     const applyFilters = () => {
         const newFilters: FilterOption[] =[];
-        if (filterState.name) {
+        if (filterState.name && filterState.name !== "") {
             newFilters.push({fieldName: "name", operationType: OperationType.EQUAL, value: filterState.name});
         }
         if (sortState.id !== undefined) {
@@ -49,27 +55,31 @@ export default function LocationComponent () {
         setTableState({...tableState, filters: newFilters});
     }
 
-    const updateLocations = async () => {
-        var currFilters: FilterOption[];
-        if (!tableState.filters || tableState.filters.length < 1) {
-            currFilters = [];
-        } else {
-            currFilters = tableState.filters;
-        }
+    const updateLocationsCount = async () => {
+        const currFilters = tableState.filters ?? [];
         const newCount: number = await LocationService.getCount(...currFilters);
         if (newCount !== tableState.count) {
+            let nextPage = tableState.currPage;
             if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
-                setTableState({...tableState, currPage: Math.trunc(((newCount - 1) / tableState.pageSize) + 1)});
+                nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
             }
-            setTableState({...tableState, count: newCount});
+            setTableState({ ...tableState, count: newCount, currPage: nextPage });
         }
+    };
+
+    const updateLocations = async () => {
+        const currFilters = tableState.filters ?? [];
         const newLocations = await LocationService.searchLocations(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters);
         setLocations(newLocations);
     }
 
     useEffect(() => {
+        updateLocationsCount();
+    }, [tableState.filters, reloadLocations])
+
+    useEffect(() => {
         updateLocations();
-    }, [tableState, currState, updateLocations]);
+    }, [tableState.currPage, tableState.pageSize, tableState.filters, reloadLocations]);
 
     const handleNext = async () => {
         if (tableState) {
@@ -106,6 +116,7 @@ export default function LocationComponent () {
                             <span className={styles.label}>id</span>
                             <select
                                 className={styles.select}
+                                value={sortState.id === undefined ? "" : (sortState.id ? "ASC" : "DESC")}
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setSortState({
@@ -125,10 +136,11 @@ export default function LocationComponent () {
                             <input
                                 className={styles.input}
                                 type="text"
+                                value={filterState.name ?? ""}
                                 onChange={(e) =>
                                     setFilterState({
                                         ...filterState,
-                                        name: e.target.value === "" || /^-?\d+(\.\d+)?$/.test(e.target.value.trim()) ? undefined : e.target.value,
+                                        name: e.target.value === "" || /^-?\d+(\.\d+)?$/.test(e.target.value.trim()) ? "" : e.target.value,
                                     })
                                 }
                             />
@@ -138,6 +150,7 @@ export default function LocationComponent () {
                             <span className={styles.label}>x:</span>
                             <select
                                 className={styles.select}
+                                value={sortState.x === undefined ? "" : (sortState.x ? "ASC" : "DESC")}
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setSortState({
@@ -156,6 +169,7 @@ export default function LocationComponent () {
                             <span className={styles.label}>y:</span>
                             <select
                                 className={styles.select}
+                                value={sortState.y === undefined ? "" : (sortState.y ? "ASC" : "DESC")}
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setSortState({
@@ -172,6 +186,14 @@ export default function LocationComponent () {
 
                         <button className={styles.applyButton} onClick={applyFilters}>
                             Применить
+                        </button>
+
+                        <button className={styles.applyButton} onClick={() => {
+                            setTableState({...tableState, filters: []});
+                            setSortState({});
+                            setFilterState({});
+                        }}>
+                            Сбросить
                         </button>
                     </div>
                 )}
@@ -204,7 +226,7 @@ export default function LocationComponent () {
                                                 if (number === -1) {
                                                     dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, "Ошибка при удалении Location. Попробуйте сначала убрать все зависимости, а потом попробовать снова."]});
                                                 } else {
-                                                    dispatcher({type: COPY_STATE});
+                                                    dispatcher({type: RELOAD_LOCATIONS, payload: {}});
                                                 }
                                         }}}>
                                         Удалить

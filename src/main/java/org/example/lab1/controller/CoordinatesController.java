@@ -1,5 +1,6 @@
 package org.example.lab1.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.Coordinates;
 import org.example.lab1.entities.dto.CoordinatesDTO;
 import org.example.lab1.entities.dto.FilterOption;
@@ -16,15 +17,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/coordinates")
-@CrossOrigin(
-        origins = "*",
-        allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE}
-)
+@Slf4j
 public class CoordinatesController {
-    private static final Logger log = LoggerFactory.getLogger(CoordinatesController.class);
-    @Autowired
     private StorageService storageService;
+
+    @Autowired
+    public CoordinatesController(StorageService storageService) {
+        this.storageService = storageService;
+    }
 
     @PostMapping("/get_count")
     public ResponseEntity<Integer> getCountCoordinates(@RequestBody(required = false) FilterOption... options) {

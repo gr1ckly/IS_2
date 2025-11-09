@@ -4,21 +4,16 @@ import EyesColor from "./EyesColor";
 import HairColor from "./HairColor";
 import LessBirthday from "./LessBirthday";
 
+import styles from "../../styles/SpecialOperations.module.css";
+
 export default function SpecialOperationsComponent () {
    return (
-       <div className="special-operations" style={{
-           display: "grid",
-           gridTemplateColumns: "1fr 1fr",
-           gap: "16px",
-           justifyItems: "center",
-           alignItems: "start",
-           position: "relative"
-       }}>
+       <div className={styles.container}>
            <DeleteNationality />
            <LessNationality />
            <EyesColor />
            <HairColor />
-           <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center" }}>
+           <div className={styles.fullRow}>
                <LessBirthday />
            </div>
        </div>
