@@ -21,10 +21,12 @@ export default function LessBirthday() {
         if (personNumber === -1) {
             setMessage(`Ошибка при выводе объектов с birthday < ${birthday} `);
             setBirthday("");
+            setTableState(undefined);
             return
         } else if (personNumber === 0) {
             setMessage(`Нету объектов Person, родившихся позже ${birthday}`);
             setBirthday("");
+            setTableState(undefined);
             return
         }
         setTableState({pageSize: 10, count:personNumber, currPage:1, filters: [currFilter]});
@@ -39,6 +41,7 @@ export default function LessBirthday() {
                 className={styles.input}
                 min="0001-01-01"
                 max="9999-12-31"
+                required
                 value={birthday}
                 onChange={(e) => {
                     setBirthday(e.target.value || "")}}

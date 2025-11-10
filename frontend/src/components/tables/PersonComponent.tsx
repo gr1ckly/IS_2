@@ -126,6 +126,7 @@ export default function PersonComponent() {
                         <input
                             className={styles.input}
                             type="text"
+                            maxLength={1000}
                             value={filterState.name ?? ""}
                             onChange={(e) => {
                                 setFilterState({

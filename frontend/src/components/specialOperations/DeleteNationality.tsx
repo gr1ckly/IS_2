@@ -21,7 +21,7 @@ export default function DeleteNationality() {
         const currFilter: FilterOption = {fieldName: "nationality", operationType: OperationType.EQUAL, value: Country[deletedNationality].toString()};
         console.log(currFilter.value);
         const deleteNumber: number = await PersonService.deletePerson(currFilter);
-        if (!deleteNumber || deleteNumber === -1) {
+        if (deleteNumber === undefined || deleteNumber === -1) {
             setMessage(`Ошибка при удалении объектов с nationality = ${deletedNationality.toString()} `);
         } else {
             setMessage(`Было удалено ${deleteNumber} объектов Person с nationality = ${deletedNationality.toString()}`);

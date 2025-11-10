@@ -29,7 +29,7 @@ public class Person {
     @Check(constraints = "id > 0")
     private Long id; //Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
 
-    @Column(name = "name",nullable = false)
+    @Column(name = "name", nullable = false, length=1000)
     @Check(constraints = "name != ''")
     private String name; //Поле не может быть null, Строка не может быть пустой
 

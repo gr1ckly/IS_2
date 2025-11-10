@@ -24,9 +24,9 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: 80px;
+    gap: 40px;
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
 }
 
 @media (max-width: 960px) {

@@ -71,8 +71,11 @@ export default function HairColor() {
             <div className={styles.inputGroup}>
                 <span className={styles.label}>Введите location_id:</span>
                 <input
-                    type="number"
+                    type="text"
                     className={styles.input}
+                    required
+                    inputMode="numeric"
+                    pattern="^\\d*$"
                     onChange={handleChangeLocationId}
                 />
                 {locationIdMessage !== "" && (

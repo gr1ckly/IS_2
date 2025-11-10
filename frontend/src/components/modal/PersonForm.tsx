@@ -17,6 +17,7 @@ interface Props {
 }
 
 export default function PersonForm(props: Readonly<Props>) {
+    const MAX_FLOAT32 = 3.4028235e38;
     const dispatcher = useDispatch();
     const notifications = useSelector(selectNotifications);
     const [currPerson, setCurrPerson] = useState<PersonDTO>(
@@ -39,11 +40,13 @@ export default function PersonForm(props: Readonly<Props>) {
     const [currCoordinatesId, setCurrCoordinatesId] = useState<number | undefined>(currPerson.coordinatesId);
 
     const handleChangeCoordinatesId = async (e: ChangeEvent<HTMLInputElement>) => {
-        const value = Number.parseInt(e.target.value);
+        const raw = Number.parseInt(e.target.value);
+        const MAX_SAFE = Number.MAX_SAFE_INTEGER;
+        const value = Number.isNaN(raw) ? raw : Math.min(raw, MAX_SAFE);
         setCurrCoordinatesId(Number.isNaN(value) ? undefined : value);
 
-        if (Number.isNaN(value)) {
-            setCoordinatesIdMessage("Некорректное значение coordinates_id");
+        if (!Number.isFinite(value) || Number.isNaN(value) || value <= 0) {
+            setCoordinatesIdMessage("Некорректное значение coordinates_id (должно быть >= 1)");
             return;
         }
 
@@ -63,9 +66,11 @@ export default function PersonForm(props: Readonly<Props>) {
             setLocationIdMessage("");
             return;
         }
-        const currLocationId = Number.parseInt(e.target.value);
-        if (Number.isNaN(currLocationId)) {
-            setLocationIdMessage("Некорректное значение location_id");
+        const raw = Number.parseInt(e.target.value);
+        const MAX_SAFE = Number.MAX_SAFE_INTEGER;
+        const currLocationId = Number.isNaN(raw) ? raw : Math.min(raw, MAX_SAFE);
+        if (!Number.isFinite(currLocationId) || Number.isNaN(currLocationId) || currLocationId <= 0) {
+            setLocationIdMessage("Некорректное значение location_id (должно быть >= 1)");
             return;
         }
         const currLocation: { coords: LocationDTO | undefined; count: number } = await LocationService.getLocationByID(currLocationId);
@@ -135,7 +140,7 @@ export default function PersonForm(props: Readonly<Props>) {
             return;
         }
         setMessage("");
-        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Обновлен Person с id = ${number}`]});
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Обновлен Person с id = ${currPerson.id}`]});
     };
 
     return (
@@ -154,6 +159,8 @@ export default function PersonForm(props: Readonly<Props>) {
                 <input
                     type="text"
                     className={styles.input}
+                    maxLength={1000}
+                    required
                     value={currPerson.name ?? ""}
                     onChange={(e) => {
                         const value = e.target.value;
@@ -161,6 +168,8 @@ export default function PersonForm(props: Readonly<Props>) {
                             setNameMessage("Поле name не должно быть пустым");
                         } else if (/^-?\d+(\.\d+)?$/.test(value.trim())) {
                             setNameMessage("Поле name не должно состоять только из числа");
+                        } else if (value.length > 1000) {
+                            setNameMessage("Длина поля name не должна превышать 1000 символов");
                         } else {
                             setNameMessage("");
                         }
@@ -173,8 +182,12 @@ export default function PersonForm(props: Readonly<Props>) {
             <div className={styles.field}>
                 <span className={styles.label}>coordinates_id:</span>
                 <input
-                    type="number"
+                    type="text"
                     step="1"
+                    required
+                    min={1}
+                    inputMode="numeric"
+                    pattern="^\\d*$"
                     className={styles.input}
                     value={currCoordinatesId ?? ""}
                     onChange={handleChangeCoordinatesId}
@@ -231,8 +244,10 @@ export default function PersonForm(props: Readonly<Props>) {
             <div className={styles.field}>
                 <span className={styles.label}>location_id(необязательно):</span>
                 <input
-                    type="number"
+                    type="text"
                     step="1"
+                    inputMode="numeric"
+                    pattern="^\\d*$"
                     className={styles.input}
                     value={currPerson.locationId ?? ""}
                     onChange={handleChangeLocationId}
@@ -245,17 +260,22 @@ export default function PersonForm(props: Readonly<Props>) {
             <div className={styles.field}>
                 <span className={styles.label}>height:</span>
                 <input
-                    type="number"
+                    type="text"
                     step="any"
+                    required
+                    min={0.0000001}
+                    max={3.4028235e38}
+                    inputMode="decimal"
+                    pattern="^\\d*(?:[.,]\\d*)?$"
                     className={styles.input}
-                    value={currPerson.height ?? ""}
+                    value={Number.isFinite(currPerson.height ?? (Number.NaN as any)) ? String(currPerson.height) : ""}
                     onChange={(e) => {
-                        const value = Number.parseFloat(e.target.value);
-                        if (!Number.isFinite(value)) {
+                        const value = Number.parseFloat(e.target.value.replace(',', '.'));
+                        if (!Number.isFinite(value) || value >= MAX_FLOAT32 || value <= -MAX_FLOAT32) {
                             setHeightMessage("Некорректное значение height");
                             return;
                         }
-                        setCurrPerson({ ...currPerson, height: Math.max(value, 0) });
+                        setCurrPerson({ ...currPerson, height: value });
                         setHeightMessage(value > 0 ? "" : "Поле height должно быть больше 0");
                     }}
                 />
@@ -268,6 +288,7 @@ export default function PersonForm(props: Readonly<Props>) {
                 <span className={styles.label}>birthday:</span>
                 <input
                     type="date"
+                    required
                     className={styles.input}
                     min="0001-01-01"
                     max="9999-12-31"
@@ -285,10 +306,14 @@ export default function PersonForm(props: Readonly<Props>) {
             <div className={styles.field}>
                 <span className={styles.label}>weight(необязательно):</span>
                 <input
-                    type="number"
+                    type="text"
                     step="any"
+                    min={0.0000001}
+                    max={3.4028235e38}
+                    inputMode="decimal"
+                    pattern="^\\d*(?:[.,]\\d*)?$"
                     className={styles.input}
-                    value={currPerson.weight ?? ""}
+                    value={Number.isFinite(currPerson.weight ?? (Number.NaN as any)) ? String(currPerson.weight) : ""}
                     onChange={(e) => {
                         const raw = e.target.value;
                         if (raw === "") {
@@ -296,13 +321,29 @@ export default function PersonForm(props: Readonly<Props>) {
                             setWeightMessage("");
                             return;
                         }
-                        const value = Number.parseFloat(raw);
-                        if (!Number.isFinite(value)) {
+                        const value = Number.parseFloat(raw.replace(',', '.'));
+                        if (!Number.isFinite(value) || value >= MAX_FLOAT32 || value <= -MAX_FLOAT32) {
                             setWeightMessage("Некорректное значение weight");
                             return;
                         }
-                        setCurrPerson({ ...currPerson, weight: Math.max(value, 0) });
-                        setWeightMessage(value > 0 ? "" : "Поле weight должно быть больше 0");
+                        if (value <= 0 ){
+                            setWeightMessage("Поле weight должно быть больше 0");
+                            return
+                        }
+                        setCurrPerson({ ...currPerson, weight: value });
+                        setWeightMessage("");
+                    }}
+                    onKeyDown={(e) => {
+                        const k = e.key;
+                        if (k === 'e' || k === 'E' || k === '+' || k === '-') {
+                            e.preventDefault();
+                        }
+                    }}
+                    onPaste={(e) => {
+                        const t = e.clipboardData.getData('text');
+                        if (/[eE+\-]/.test(t)) {
+                            e.preventDefault();
+                        }
                     }}
                 />
                 {weightMessage && (

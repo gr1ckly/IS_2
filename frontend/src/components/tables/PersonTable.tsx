@@ -24,6 +24,9 @@ export default function PersonTable(props: Readonly<Props>) {
     const reloadPersons = useSelector(selectReloadPersons);
     const [persons, setPersons] = useState<PersonDTO[]>([]);
     const [localTableState, setLocalTableState] = useState({ ...props.tableState });
+    useEffect(() => {
+        setLocalTableState({ ...props.tableState });
+    }, [props.tableState]);
     const stateNotifications = useSelector(selectNotifications);
 
     const updatePersonsCount = async () => {

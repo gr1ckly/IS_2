@@ -115,14 +115,15 @@
     border-radius: 8px;
     background-color: #000000;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
-.table::-webkit-scrollbar { display: none; }
-.table { -ms-overflow-style: none; scrollbar-width: none; }
-
-table {
+.table > table {
     width: 100%;
+    min-width: 0;
+    table-layout: auto;
     border-collapse: collapse;
 }
 

@@ -21,9 +21,14 @@ export default function CoordinatesForm(props: Readonly<Props>) {
         }
     )
     const [message, setMessage] = useState("");
+    const [xMessage, setXMessage] = useState("");
+    const [yMessage, setYMessage] = useState("");
 
     const handleCreate = async () => {
-        if (message) return;
+        if (xMessage || yMessage) {
+            setMessage("Сначала введите корректные значения для всех полей");
+            return;
+        }
         if (newCoordinates.x <= -459) {
             setMessage("Некорректное значение поля x");
             return
@@ -43,7 +48,10 @@ export default function CoordinatesForm(props: Readonly<Props>) {
     }
 
     const handleUpdate = async () => {
-        if (message) return;
+        if (xMessage || yMessage) {
+            setMessage("Сначала введите корректные значения для всех полей");
+            return;
+        }
         if (newCoordinates.x <= -459) {
             setMessage("Некорректное значение поля x");
             return
@@ -82,44 +90,59 @@ export default function CoordinatesForm(props: Readonly<Props>) {
                 <span className={styles.label}>X:</span>
                 <input
                     className={styles.input}
-                    type="number"
+                    type="text"
                     step="any"
-                    value={newCoordinates.x}
+                    required
+                    min={-458.999999}
+                    inputMode="decimal"
+                    pattern="^-?\\d*(?:[.,]\\d*)?$"
+                    value={Number.isFinite(newCoordinates.x as any) ? String(newCoordinates.x) : ""}
                     onChange={(e) => {
-                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        const raw = (e.currentTarget as HTMLInputElement).value;
+                        const v = Number((raw || '').replace(',', '.'));
                         if (!Number.isFinite(v)) {
-                            setMessage("Некорректное значение X");
-                        } else {
-                            setMessage("");
+                            setXMessage("Некорректное значение X");
+                            return;
+                        } else if (v <= -459) {
+                            setXMessage("Значение X должно быть > -459");
+                            return;
                         }
-                        setCoordinates({
-                            ...newCoordinates,
-                            x: v,
-                        })
+                        setCoordinates({ ...newCoordinates, x: v })
+                        setXMessage("");
                     }}
                 />
+                {xMessage && (<label className={styles.message}>{xMessage}</label>)}
             </div>
 
             <div className={styles.field}>
                 <span className={styles.label}>Y:</span>
                 <input
                     className={styles.input}
-                    type="number"
+                    type="text"
                     step="1"
-                    value={newCoordinates.y}
+                    required
+                    min={-237}
+                    inputMode="numeric"
+                    pattern="^-?\\d*$"
+                    value={Number.isFinite(newCoordinates.y as any) ? String(newCoordinates.y) : ""}
                     onChange={(e) => {
-                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
-                        if (!Number.isSafeInteger(v)) {
-                            setMessage("Некорректное значение Y");
-                        } else {
-                            setMessage("");
+                        const raw = (e.currentTarget as HTMLInputElement).value;
+                        const v = Number((raw || '').replace(',', '.'));
+                        if (!Number.isFinite(v)) {
+                            setYMessage("Некорректное значение Y");
+                            return;
+                        } else if (!Number.isSafeInteger(v)) {
+                            setYMessage("Некорректное значение Y");
+                            return;
+                        } else if (v < -237) {
+                            setYMessage("Значение Y должно быть >= -237");
+                            return;
                         }
-                        setCoordinates({
-                            ...newCoordinates,
-                            y: Number.isFinite(v) ? Math.trunc(v) : (v as any),
-                        })
+                        setCoordinates({ ...newCoordinates, y: v as any })
+                        setYMessage("");
                     }}
                 />
+                {yMessage && (<label className={styles.message}>{yMessage}</label>)}
             </div>
 
             {newCoordinates.id && (

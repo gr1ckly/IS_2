@@ -22,10 +22,15 @@ export default function LocationForm(props: Readonly<Props>) {
         }
     )
     const [nameMessage, setNameMessage] = useState("");
+    const [xMessage, setXMessage] = useState("");
+    const [yMessage, setYMessage] = useState("");
     const [message, setMessage] = useState("");
 
     const handleCreate = async () => {
-        if (message) return;
+        if (message || nameMessage !== "" || xMessage !== "" || yMessage !== "") {
+            setMessage("Сначала введите корректные значения для всех полей");
+            return;
+        }
         if (newLocation.name.length > 871) {
             setMessage("Некорректное значение поля name");
             return
@@ -40,7 +45,10 @@ export default function LocationForm(props: Readonly<Props>) {
     }
 
     const handleUpdate = async () => {
-        if (message) return;
+        if (message || nameMessage !== "" || xMessage !== "" || yMessage !== "") {
+            setMessage("Сначала введите корректные значения для всех полей");
+            return;
+        }
         if (newLocation.name.length > 871) {
             setMessage("Некорректное значение поля name");
             return
@@ -74,44 +82,49 @@ export default function LocationForm(props: Readonly<Props>) {
                 <span className={styles.label}>X:</span>
                 <input
                     className={styles.input}
-                    type="number"
+                    type="text"
                     step="any"
-                    value={newLocation.x}
+                    required
+                    inputMode="decimal"
+                    pattern="^-?\\d*(?:[.,]\\d*)?$"
+                    value={Number.isFinite(newLocation.x) ? String(newLocation.x) : ""}
                     onChange={(e) => {
-                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
+                        const raw = (e.currentTarget as HTMLInputElement).value;
+                        const v = Number((raw || '').replace(',', '.'));
                         if (!Number.isFinite(v)) {
-                            setMessage("Некорректное значение X");
-                        } else {
-                            setMessage("");
+                            setXMessage("Некорректное значение X");
+                            return;
                         }
-                        setLocation({
-                            ...newLocation,
-                            x: v,
-                        })
+                        setLocation({...newLocation, x: v});
+                        setXMessage("");
                     }}
                 />
+                {xMessage && (<label className={styles.message}>{xMessage}</label>)}
             </div>
 
             <div className={styles.field}>
                 <span className={styles.label}>Y:</span>
                 <input
                     className={styles.input}
-                    type="number"
+                    type="text"
                     step="any"
-                    value={newLocation.y}
+                    required
+                    inputMode="decimal"
+                    pattern="^-?\\d*(?:[.,]\\d*)?$"
+                    value={Number.isFinite(newLocation.y) ? String(newLocation.y) : ""}
                     onChange={(e) => {
-                        const v = (e.currentTarget as HTMLInputElement).valueAsNumber;
-                        if (!Number.isFinite(v)) {
-                            setMessage("Некорректное значение Y");
-                        } else {
-                            setMessage("");
+                        const raw = (e.currentTarget as HTMLInputElement).value;
+                        const v = Number((raw || '').replace(',', '.'));
+                        const MAX_F32 = 3.4028235e38;
+                        if (!Number.isFinite(v) || v >= MAX_F32 || v <= -MAX_F32) {
+                            setYMessage("Некорректное значение Y");
+                            return;
                         }
-                        setLocation({
-                            ...newLocation,
-                            y: v,
-                        })
+                        setLocation({...newLocation, y: v});
+                        setYMessage("");
                     }}
                 />
+                {yMessage && (<label className={styles.message}>{yMessage}</label>)}
             </div>
 
             <div className={styles.field}>
@@ -119,9 +132,11 @@ export default function LocationForm(props: Readonly<Props>) {
                 <input
                     className={styles.input}
                     type="text"
+                    maxLength={871}
                     value={newLocation.name}
                     onChange={(e) => {
                         const value = e.target.value;
+                        setLocation({...newLocation, name:value})
                         if (/^-?\d+(\.\d+)?$/.test(value.trim())) {
                             setNameMessage("Поле name не должно быть числом");
                         } else if (value.length > 871) {
@@ -129,7 +144,6 @@ export default function LocationForm(props: Readonly<Props>) {
                         } else {
                             setNameMessage("");
                         }
-                        setLocation({...newLocation, name:value})
                     }}
                 />
                 {nameMessage && (

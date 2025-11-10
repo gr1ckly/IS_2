@@ -6,7 +6,6 @@ import styles from "../../styles/Notification.module.css";
 export default function Notification() {
     const dispatcher = useDispatch();
     const stateNotifications: string[] = useSelector(selectNotifications);
-    console.dir("notifications type " + stateNotifications)
 
     return (
         <div className={styles.container}>
