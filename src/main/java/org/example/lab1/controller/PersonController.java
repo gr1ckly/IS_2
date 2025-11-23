@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.Person;
 import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.PersonDTO;
-import org.example.lab1.exceptions.BadDataException;
+import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +53,7 @@ public class PersonController {
         if (pers != null) {
             return ResponseEntity.ok(pers.toDTO());
         } else {
-            throw new BadDataException("Person with id: " + id + " doesn't exist");
+            throw new NotFoundException("Person with id: " + id + " doesn't exist");
         }
     }
 

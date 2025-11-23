@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.Coordinates;
 import org.example.lab1.entities.dto.CoordinatesDTO;
 import org.example.lab1.entities.dto.FilterOption;
-import org.example.lab1.exceptions.BadDataException;
+import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.CoordinatesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +60,7 @@ public class CoordinatesController {
             log.info("getCoordinatesById found coordinates");
             return ResponseEntity.ok(currCoords.toDTO());
         } else {
-            throw new BadDataException("coordinates with id: " + id + "doesn't exist");
+            throw new NotFoundException("coordinates with id: " + id + "doesn't exist");
         }
     }
 

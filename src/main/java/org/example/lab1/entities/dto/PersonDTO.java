@@ -29,5 +29,4 @@ public record PersonDTO(Long id,
         newPerson.setNationality(nationality);
         return newPerson;
     }
-
 }

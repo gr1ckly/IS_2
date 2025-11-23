@@ -8,7 +8,7 @@ import org.example.lab1.entities.dao.Coordinates;
 import org.example.lab1.entities.dao.Location;
 import org.example.lab1.entities.dao.Person;
 import org.example.lab1.entities.dto.FilterOption;
-import org.example.lab1.exceptions.BadDataException;
+import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.CoordinatesStorage;
 import org.example.lab1.model.interfaces.LocationStorage;
 import org.example.lab1.model.interfaces.PersonStorage;
@@ -45,13 +45,13 @@ public class PersonService {
         if (locationId != null && locationId > 0) {
             Location currLocation = this.locationStorage.getLocationByID(locationId);
             if (currLocation == null) {
-                throw new BadDataException("Location not found");
+                throw new NotFoundException("Location not found");
             }
             newPerson.setLocation(currLocation);
         }
         Coordinates currCoords = this.coordinatesStorage.getCoordinatesByID(coordinatesId);
         if (currCoords == null) {
-            throw new BadDataException("Coordinates not found");
+            throw new NotFoundException("Coordinates not found");
         }
         newPerson.setCoordinates(currCoords);
         long createdId = this.personStorage.createPerson(newPerson);
@@ -75,13 +75,13 @@ public class PersonService {
         if (locationId != null && locationId > 0) {
             Location currLocation = this.locationStorage.getLocationByID(locationId);
             if (currLocation == null) {
-                throw new BadDataException("Location not found");
+                throw new NotFoundException("Location not found");
             }
             newPerson.setLocation(currLocation);
         }
         Coordinates currCoords = this.coordinatesStorage.getCoordinatesByID(coordinatesId);
         if (currCoords == null) {
-            throw new BadDataException("Coordinates not found");
+            throw new NotFoundException("Coordinates not found");
         }
         newPerson.setCoordinates(currCoords);
         int updated = this.personStorage.updatePerson(id, newPerson);

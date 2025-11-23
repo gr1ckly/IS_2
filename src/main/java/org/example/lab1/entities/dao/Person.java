@@ -77,6 +77,30 @@ public class Person {
         }
     }
 
+    public boolean isValid() {
+        if (this.name == null || this.name.length() > 1000 || this.name == "") return false;
+
+        if (this.coordinates == null) {
+            return false;
+        } else if (!this.coordinates.isValid()) return false;
+
+        if (this.birthday == null) return false;
+
+        if (this.hairColor == null) return false;
+
+        if (this.location != null && !this.location.isValid()) return false;
+
+        if (this.height == null || this.height <= 0) return false;
+
+        if (this.birthday == null) return false;
+
+        if (this.weight != null && this.weight <= 0) return false;
+
+        if (this.nationality == null) return false;
+
+        return true;
+    }
+
     public PersonDTO toDTO() {
         Long coordinatesId = this.coordinates != null ? this.coordinates.getId() : null;
         Long locationId = this.location != null ? this.location.getId() : null;

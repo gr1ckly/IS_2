@@ -5,13 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.lab1.entities.dao.Coordinates;
-import org.example.lab1.entities.dao.Location;
-import org.example.lab1.entities.dao.Person;
 import org.example.lab1.entities.dto.FilterOption;
-import org.example.lab1.exceptions.BadDataException;
 import org.example.lab1.model.interfaces.CoordinatesStorage;
-import org.example.lab1.model.interfaces.LocationStorage;
-import org.example.lab1.model.interfaces.PersonStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

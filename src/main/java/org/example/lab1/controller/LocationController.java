@@ -3,7 +3,7 @@ package org.example.lab1.controller;
 import org.example.lab1.entities.dao.Location;
 import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.LocationDTO;
-import org.example.lab1.exceptions.BadDataException;
+import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class LocationController {
         if (currLocation != null) {
             return ResponseEntity.ok(currLocation.toDTO());
         } else {
-            throw new BadDataException("Location with id: " + id + " doesn't exist");
+            throw new NotFoundException("Location with id: " + id + " doesn't exist");
         }
     }
 

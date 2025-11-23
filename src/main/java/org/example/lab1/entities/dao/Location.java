@@ -35,4 +35,14 @@ public class Location {
     public LocationDTO toDTO() {
         return new LocationDTO(this.id, this.x, this.y, this.name);
     }
+
+    public boolean isValid() {
+        if (this.x == null) {return false;}
+
+        if (this.y == null) {return false;}
+
+        if (this.name != null && this.name.length() >= 871) {return false;}
+
+        return true;
+    }
 }

@@ -26,7 +26,7 @@ public class Coordinates {
 
     @Column(name = "x")
     @Check(constraints = "x > -459")
-    private double x; //Значение поля должно быть больше -459
+    private Double x; //Значение поля должно быть больше -459
 
     @Column(name = "y", nullable = false)
     @Check(constraints = "y > -238")
@@ -34,5 +34,13 @@ public class Coordinates {
 
     public CoordinatesDTO toDTO() {
         return new CoordinatesDTO(this.id, this.x, this.y);
+    }
+
+    public boolean isValid() {
+        if (this.x != null && this.x <= -459) {return false;}
+
+        if (this.y == null || this.y <= -238) {return false;}
+
+        return true;
     }
 }
