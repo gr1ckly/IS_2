@@ -12,4 +12,6 @@ public interface LocationStorage {
     List<Location> searchLocations(int offset, int limit, FilterOption... options) throws Exception;
     int updateLocation(long id, Location newLocation) throws Exception;
     int deleteLocation(long id) throws Exception;
+    void flush() throws Exception;
+    void clear() throws Exception;
 }

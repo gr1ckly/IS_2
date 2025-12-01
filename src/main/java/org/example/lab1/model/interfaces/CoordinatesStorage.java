@@ -12,4 +12,6 @@ public interface CoordinatesStorage {
     List<Coordinates> searchCoordinates(int offset, int limit, FilterOption... options) throws Exception;
     int updateCoordinates(long id, Coordinates newCoords) throws Exception;
     int deleteCoordinates(long id) throws Exception;
+    void flush() throws Exception;
+    void clear() throws Exception;
 }

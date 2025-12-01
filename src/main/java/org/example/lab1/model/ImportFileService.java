@@ -57,31 +57,31 @@ public class ImportFileService {
     @Async("importExecutor")
     public CompletableFuture<Void> startHandleFile(ImportFile newFile, InputStream inputStream) throws Exception {
         try {
-            log.info("Start file handling id: " + newFile.getId());
+            log.error("Start file handling id: " + newFile.getId());
             int count = this.handleFileExecutor.handleFile(inputStream);
             newFile.setStatus(ImportStatus.SUCCESS);
             newFile.setAddedPersons(count);
             this.importFileStorage.updateImportFile(newFile.getId(), newFile);
             this.notificationService.sendEvent(ImportFileService.importFilesEvent);
-            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Файл с id: " + newFile.getId() + " был успешно обработан, было добавлено " + count + " person");
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, new StringBuilder("File with id: ").append(newFile.getId()).append(" was successfully handled, added ").append(count).append(" person").toString());
         } catch (BadFormatException bfe) {
-            log.info("Bad format file id: " + newFile.getId() + " e: " + bfe.getMessage());
+            log.error("Bad format file id: " + newFile.getId() + " e: " + bfe.getMessage());
             newFile.setStatus(ImportStatus.BAD_FORMAT);
             this.importFileStorage.updateImportFile(newFile.getId(), newFile);
             this.notificationService.sendEvent(ImportFileService.importFilesEvent);
-            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Некорректный формат файла с id: " + newFile.getId());
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, new StringBuilder("Incorrect format file with id: ").append(newFile.getId()).toString());
         } catch (BadDataException bde) {
-            log.info("Bad date file id: " + newFile.getId() + " e: " + bde.getMessage());
+            log.error("Bad date file id: " + newFile.getId() + " e: " + bde.getMessage());
             newFile.setStatus(ImportStatus.BAD_DATA);
             this.importFileStorage.updateImportFile(newFile.getId(), newFile);
             this.notificationService.sendEvent(ImportFileService.importFilesEvent);
-            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Невалидные данные в файле с id: " + newFile.getId());
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, new StringBuilder("Not valid data in file with id: ").append( newFile.getId()).toString());
         } catch (Exception e) {
-            log.info("Failed file id: " + newFile.getId() + " e: " + e.getMessage());
+            log.error("Failed file id: " + newFile.getId() + " e: " + e.getMessage());
             newFile.setStatus(ImportStatus.FAILED);
             this.importFileStorage.updateImportFile(newFile.getId(), newFile);
             this.notificationService.sendEvent(ImportFileService.importFilesEvent);
-            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Ошибка при обработке файла с id: " + newFile.getId());
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent,  new StringBuilder("Failed handling file with id: ").append(newFile.getId()).toString());
         }
         return CompletableFuture.completedFuture(null);
     }

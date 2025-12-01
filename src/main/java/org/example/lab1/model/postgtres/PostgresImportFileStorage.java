@@ -79,4 +79,16 @@ public class PostgresImportFileStorage implements ImportFileStorage {
             throw new NotFoundException("ImportFile Not Found");
         }
     }
+
+    @Override
+    @Transactional
+    public void flush() throws Exception{
+        this.sessionFactory.getCurrentSession().flush();
+    }
+
+    @Override
+    @Transactional
+    public void clear() throws Exception{
+        this.sessionFactory.getCurrentSession().clear();
+    }
 }

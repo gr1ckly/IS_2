@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.Coordinates;
 import org.example.lab1.entities.dao.Location;
 import org.example.lab1.entities.dao.Person;
@@ -14,6 +15,8 @@ import org.example.lab1.model.interfaces.LocationStorage;
 import org.example.lab1.model.interfaces.PersonStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Slf4j
 public class PersonService {
     private PersonStorage personStorage;
 
@@ -97,5 +101,14 @@ public class PersonService {
             notificationService.sendEvent(PersonService.personEvent);
         }
         return deleted;
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public int getDifference() throws Exception {
+        int firstCount = this.personStorage.getCount();
+        Thread.sleep(10000);
+        int lastCount = this.personStorage.getCount();
+        log.error("Waiting thread");
+        return Math.abs(lastCount - firstCount);
     }
 }

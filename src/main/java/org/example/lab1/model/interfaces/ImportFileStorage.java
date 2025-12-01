@@ -10,4 +10,6 @@ public interface ImportFileStorage {
     int getCount() throws Exception;
     List<ImportFile> searchImportFiles(int offset, int limit) throws Exception;
     int updateImportFile(long id, ImportFile newFile) throws Exception;
+    void flush() throws Exception;
+    void clear() throws Exception;
 }

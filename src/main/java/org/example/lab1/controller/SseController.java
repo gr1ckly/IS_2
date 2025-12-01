@@ -25,7 +25,7 @@ public class SseController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping(path="/get-sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path="/get-sse", produces = "text/event-stream")
     public SseEmitter getSseEmitter() {
         SseEmitter emitter = new SseEmitter(0L);
         emitter.onCompletion(() -> this.notificationService.unregisterSseEmitter(emitter));

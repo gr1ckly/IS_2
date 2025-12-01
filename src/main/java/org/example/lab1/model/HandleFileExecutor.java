@@ -11,6 +11,7 @@ import org.example.lab1.model.interfaces.CoordinatesStorage;
 import org.example.lab1.model.interfaces.ImportFileStorage;
 import org.example.lab1.model.interfaces.LocationStorage;
 import org.example.lab1.model.interfaces.PersonStorage;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,18 +28,20 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@Slf4j
 public class HandleFileExecutor {
-    public ImportFileStorage importFileStorage;
+    private ImportFileStorage importFileStorage;
 
-    public CoordinatesStorage coordinatesStorage;
+    private CoordinatesStorage coordinatesStorage;
 
-    public PersonStorage personStorage;
+    private PersonStorage personStorage;
 
-    public LocationStorage locationStorage;
+    private LocationStorage locationStorage;
 
-    public PersonSimilarity personSimilarity;
+    private PersonSimilarity personSimilarity;
 
-    private static double similarTreshold = 0.9;
+
+    private static int BATCH_SIZE = 1000;
 
     @Autowired
     public HandleFileExecutor(ImportFileStorage importFileStorage, CoordinatesStorage coordinatesStorage, PersonStorage personStorage, LocationStorage locationStorage, PersonSimilarity personSimilarity) {
@@ -62,6 +65,7 @@ public class HandleFileExecutor {
             Yaml yaml = new Yaml(new PersonYAMLConstructor(options));
             Iterable<Object> docs = yaml.loadAll(inputStream);
             List<Person> persons = this.parsePersons(docs);
+            log.error("Parsed all persons");
             return flushPersons(persons);
         } catch (YAMLException | ParseException ye) {
             throw new BadFormatException("Incorrect format");
@@ -93,7 +97,15 @@ public class HandleFileExecutor {
             }
             this.coordinatesStorage.createCoordinates(person.getCoordinates());
             this.personStorage.createPerson(person);
-            count++;
+            if (count++ % HandleFileExecutor.BATCH_SIZE == 0) {
+                this.locationStorage.flush();
+                this.locationStorage.clear();
+                this.coordinatesStorage.flush();
+                this.coordinatesStorage.clear();
+                this.personStorage.flush();
+                this.personStorage.clear();
+                log.error("Flushed " + count / HandleFileExecutor.BATCH_SIZE + " batch");
+            }
         }
         return count;
     }
@@ -106,7 +118,7 @@ public class HandleFileExecutor {
         int count = 0;
         if (persons != null) {
             for (int i = 0; i < persons.size(); i++) {
-                if (this.personSimilarity.similarScore(newPerson, persons.get(i)) >= HandleFileExecutor.similarTreshold) {
+                if (this.personSimilarity.areSimilar(newPerson, persons.get(i))) {
                     persons.set(i, this.personSimilarity.merge(newPerson, persons.get(i)));
                     count++;
                 }

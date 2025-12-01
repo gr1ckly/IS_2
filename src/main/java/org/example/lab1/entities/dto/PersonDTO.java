@@ -14,7 +14,7 @@ public record PersonDTO(Long id,
                         Color hairColor,
                         Long locationId,
                         Float height,
-                        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+                        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSS]")
                         java.time.LocalDateTime birthday,
                         Float weight,
                         Country nationality){

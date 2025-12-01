@@ -95,4 +95,16 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
         query.append(alias);
         return this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Coordinates.class, new FilterOption("id", OperationType.EQUAL, Long.toString(id))).executeUpdate();
     }
+
+    @Override
+    @Transactional
+    public void flush() throws Exception{
+        this.sessionFactory.getCurrentSession().flush();
+    }
+
+    @Override
+    @Transactional
+    public void clear() throws Exception{
+        this.sessionFactory.getCurrentSession().clear();
+    }
 }

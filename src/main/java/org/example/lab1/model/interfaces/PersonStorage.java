@@ -12,4 +12,6 @@ public interface PersonStorage {
     List<Person> searchPersons(int offset, int limit, FilterOption... options) throws Exception;
     int updatePerson(long id, Person newPerson) throws Exception;
     int deletePersonByFilter(FilterOption... options) throws Exception;
+    void flush() throws Exception;
+    void clear() throws Exception;
 }

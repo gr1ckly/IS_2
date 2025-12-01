@@ -20,26 +20,46 @@ import java.util.Date;
 public class PersonSimilarity {
     private JaroWinklerSimilarity textSimilarity;
 
+    private static double SIMILAR_THRESHOLD = 0.95;
+
     public PersonSimilarity() {
         this.textSimilarity = new JaroWinklerSimilarity();
     }
 
-    public double similarScore(Person newPerson, Person oldPerson) {
+    public boolean areSimilar(Person newPerson, Person oldPerson) {
         double nameScore = 0,
                 coordinatesYScore = 0,
                 hairColorScore = 0,
                 heightScore = 0,
                 birthdayScore = 0,
                 nationalityScore = 0;
-        nameScore = this.textScore(newPerson.getName(), oldPerson.getName());
+        hairColorScore = this.enumScore(newPerson.getHairColor(), oldPerson.getHairColor());
+        if ((5.0  + hairColorScore) / 6.0 < SIMILAR_THRESHOLD) {
+            return false;
+        }
+        birthdayScore = this.localDateTimeScore(newPerson.getBirthday(), oldPerson.getBirthday());
+        if ((5.0  + birthdayScore) / 6.0 < SIMILAR_THRESHOLD) {
+            return false;
+        }
+        nationalityScore = this.enumScore(newPerson.getNationality(), oldPerson.getNationality());
+        if ((5.0  + nationalityScore) / 6.0 < SIMILAR_THRESHOLD) {
+            return false;
+        }
         if (newPerson.getCoordinates() != null && oldPerson.getCoordinates() != null) {
             coordinatesYScore = numberScore(newPerson.getCoordinates().getY(), oldPerson.getCoordinates().getY());
+            if ((5.0  + coordinatesYScore) / 6.0 < SIMILAR_THRESHOLD) {
+                return false;
+            }
         }
-        hairColorScore = this.enumScore(newPerson.getHairColor(), oldPerson.getHairColor());
         heightScore = this.numberScore(newPerson.getHeight(), oldPerson.getHeight());
-        birthdayScore = this.localDateTimeScore(newPerson.getBirthday(), oldPerson.getBirthday());
-        nationalityScore = this.enumScore(newPerson.getNationality(), oldPerson.getNationality());
-        return (nameScore + coordinatesYScore + hairColorScore + heightScore + birthdayScore + nationalityScore) / 6;
+        if ((5.0  + heightScore) / 6.0 < SIMILAR_THRESHOLD) {
+            return false;
+        }
+        nameScore = this.textScore(newPerson.getName(), oldPerson.getName());
+        if ((5.0  + nameScore) / 6.0 < SIMILAR_THRESHOLD) {
+            return false;
+        }
+        return (nameScore + coordinatesYScore + hairColorScore + heightScore + birthdayScore + nationalityScore) / 6 >= SIMILAR_THRESHOLD;
     }
 
     private double numberScore(double number1, double number2) {

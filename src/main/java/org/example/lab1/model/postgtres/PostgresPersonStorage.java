@@ -90,4 +90,16 @@ public class PostgresPersonStorage implements PersonStorage {
         query.append(alias);
         return this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Person.class, options).executeUpdate();
     }
+
+    @Override
+    @Transactional
+    public void flush() throws Exception{
+        this.sessionFactory.getCurrentSession().flush();
+    }
+
+    @Override
+    @Transactional
+    public void clear() throws Exception{
+        this.sessionFactory.getCurrentSession().clear();
+    }
 }

@@ -66,4 +66,9 @@ public class PersonController {
     public ResponseEntity<Integer> deletePersons(@RequestBody FilterOption... options) throws Exception {
         return ResponseEntity.ok(this.personService.deletePersonsByFilters(options));
     }
+
+    @GetMapping("/get_diff")
+    public ResponseEntity<Integer> getDifference() throws Exception {
+        return ResponseEntity.ok(this.personService.getDifference());
+    }
 }
